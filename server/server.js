@@ -1,24 +1,27 @@
+require('dotenv').config()
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const lyricsFinder = require("lyrics-finder")
 const SpotifyWebApi = require('spotify-web-api-node');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/refresh', (req, res) => {
   const refreshToken = req.body.refreshToken;
     const spotifyApi = new SpotifyWebApi({
-    redirectUri: 'http://localhost:3000', // TODO URL-адресс перенаправления URI
-    clientId: 'eb307afae0d74941b50dbce32a536d1a', // TODO Идентификатор нашего клиента
-    clientSecret: '8bded1c523024938bfb5d0458f200c1f', // TODO Секрет нашего клиента
+    redirectUri: process.env.REDIRECT_URI, // TODO URL-адресс перенаправления URI
+    clientId: process.env.CLIENT_ID, // TODO Идентификатор нашего клиента
+    clientSecret: process.env.CLIENT_SECRET, // TODO Секрет нашего клиента
     refreshToken,
   })
     spotifyApi
     .refreshAccessToken()
     .then(data => {
-      // console.log(data.body);
       res.json({
         accessToken: data.body.accessToken,
         expiresIn: data.body.expiresIn,
@@ -34,9 +37,9 @@ app.post('/refresh', (req, res) => {
 app.post('/login', (req, res) => {
   const code = req.body.code
   const spotifyApi = new SpotifyWebApi({
-    redirectUri: 'http://localhost:3000', // TODO URL-адресс перенаправления URI
-    clientId: 'eb307afae0d74941b50dbce32a536d1a', // TODO Идентификатор нашего клиента
-    clientSecret: '8bded1c523024938bfb5d0458f200c1f' // TODO Секрет нашего клиента
+    redirectUri: process.env.REDIRECT_URI, // TODO URL-адресс перенаправления URI
+    clientId: process.env.CLIENT_ID, // TODO Идентификатор нашего клиента
+    clientSecret: process.env.CLIENT_SECRET // TODO Секрет нашего клиента
 
   })
   spotifyApi
@@ -52,6 +55,12 @@ app.post('/login', (req, res) => {
     console.log(err)
     res.sendStatus(400);
   })
+})
+
+app.get('/lyrics', async (req, res) => {
+  const lyrics = 
+    (await lyricsFinder(req.query.artist, req.query.track)) || "Текст не найден!"
+  res.json({ lyrics })
 })
 
 app.listen(3001)

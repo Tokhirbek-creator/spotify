@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import { Container, Form } from 'react-bootstrap';
 import SpotifyWebApi from 'spotify-web-api-node';
+import axios from 'axios';
 import useAuth from './useAuth';
 import TrackSearchResult from './TrackSearchResult';
 import Player from './Player';
 
 const spotifyApi = new SpotifyWebApi({
-  clientId: 'eb307afae0d74941b50dbce32a536d1a',
+  clientId: 'fa4756327999488f96efc43a9b02b442',
 });
 
 // eslint-disable-next-line react/prop-types
@@ -17,12 +18,27 @@ export default function Dashboard({ code }) {
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [playingTrack, setPlayingTrack] = useState();
+  const [lyrics, setLyrics] = useState('');
   // eslint-disable-next-line react/jsx-filename-extension
 
   function chooseTrack(track) {
     setPlayingTrack(track);
     setSearch('');
+    setLyrics('');
   }
+
+  useEffect(() => {
+    if (!playingTrack) return
+
+    axios.get('http://localhost:3001/lyrics', {
+      params: {
+        track: playingTrack.title,
+        artist: playingTrack.artist,
+      },
+    }).then((res) => {
+      setLyrics(res.data.lyrics);
+    });
+  }, [playingTrack]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -31,11 +47,11 @@ export default function Dashboard({ code }) {
 
   useEffect(() => {
     if (!search) return setSearchResults([]);
-    if (!accessToken) return
+    if (!accessToken) return;
 
     let cancel = false;
     spotifyApi.searchTracks(search).then((res) => {
-      if (cancel) return
+      if (cancel) return;
       setSearchResults(res.body.tracks.items.map((track) => {
         const smallestalbumImage = track.album.images.reduce((smallest, image) => {
           if (image.height < smallest.height) return image;
@@ -56,19 +72,31 @@ export default function Dashboard({ code }) {
 
   return (
     // eslint-disable-next-line react/jsx-filename-extension
-    <Container className="d-flex flex-column py-3" style={{ height: '100vh' }}>
+    <Container className="d-flex flex-column py-2" style={{ height: '100vh' }}>
+      <h3>MiyagiFy</h3>
       <Form.Control
         type="search"
-        placeholder="Искать песни/артистов"
+        placeholder="Искать песни/ альбомы/ артистов"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
       <div className="flex-grow-1 my-2" style={{ overflowY: 'auto' }}>
-        {searchResults.map(track => (
-          <TrackSearchResult track={track} key={track.uri} chooseTrack={chooseTrack} />
+        {searchResults.map((track) => (
+          <TrackSearchResult
+            track={track}
+            key={track.uri}
+            chooseTrack={chooseTrack}
+          />
         ))}
+        {searchResults.length === 0 && (
+          <div className="text-center" style={{ whiteSpace: "pre" }}>
+            {lyrics}
+          </div>
+        )}
       </div>
-      <div><Player accessToken={accessToken} trackuri={playingTrack?.uri} /></div>
+      <div>
+        <Player accessToken={accessToken} trackUri={playingTrack?.uri} />
+      </div>
     </Container>
   );
 }
