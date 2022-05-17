@@ -1,4 +1,4 @@
-# Spotify(Miyagify)
+# Spotify(MiyagiFy)
 
 ### A Web-based music listening application that connects to the Spotify API.
 
