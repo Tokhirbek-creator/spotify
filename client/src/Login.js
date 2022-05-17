@@ -6,7 +6,6 @@ const AUTH_URL = 'https://accounts.spotify.com/authorize?client_id=fa47563279994
 
 export default function Login() {
   return (
-    // eslint-disable-next-line react/jsx-filename-extension
     <Container
       className="d-flex justify-content-center align-items-center"
       style={{ minHeight: '100vh' }}

@@ -37,18 +37,18 @@ app.post('/refresh', (req, res) => {
 app.post('/login', (req, res) => {
   const code = req.body.code
   const spotifyApi = new SpotifyWebApi({
-    redirectUri: process.env.REDIRECT_URI, // TODO URL-адресс перенаправления URI
-    clientId: process.env.CLIENT_ID, // TODO Идентификатор нашего клиента
-    clientSecret: process.env.CLIENT_SECRET // TODO Секрет нашего клиента
+    redirectUri: process.env.REDIRECT_URI, 
+    clientId: process.env.CLIENT_ID, 
+    clientSecret: process.env.CLIENT_SECRET
 
   })
   spotifyApi
   .authorizationCodeGrant(code)
   .then(data => {
     res.json({
-      accessToken: data.body.access_token,
-      refreshToken: data.body.refresh_token,
-      expiresIn: data.body.expires_in,
+      accessToken: data.body.access_token, //* Успешный ключ
+      refreshToken: data.body.refresh_token, //* Обновление куки
+      expiresIn: data.body.expires_in, //* Срок куки
     })
   })
   .catch((err) => {
