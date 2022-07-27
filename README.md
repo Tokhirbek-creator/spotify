@@ -1,7 +1,7 @@
 # Spotify(MiyagiFy)
 
 ### A Web-based music listening application that connects to the Spotify API.
-<img src="https://www.ixbt.com/img/n1/news/2021/4/2/spotify-logo-1920x1080-2-1536x865_large.png"/>
+<img src="https://mobile-review.com/news/wp-content/uploads/Spotify_Logo_RGB_Green.png"/>
 
 ## Features
 
